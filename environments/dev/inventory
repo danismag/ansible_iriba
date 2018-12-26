@@ -1,2 +1,2 @@
-[iriba01]
-130.193.41.24  ansible_python_interpreter=/usr/bin/python3
+[webservers]
+iriba01 ansible_host=130.193.41.24  ansible_python_interpreter=/usr/bin/python3
