@@ -1,1 +1,4 @@
 .ssh/
+ansible_run.sh
+temp/
+*.retry
