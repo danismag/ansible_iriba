@@ -1,2 +1,5 @@
 [webservers]
 iriba01 ansible_host=130.193.41.24  ansible_python_interpreter=/usr/bin/python3
+
+[test]
+iriba02 ansible_host=84.201.136.181  ansible_python_interpreter=/usr/bin/python3

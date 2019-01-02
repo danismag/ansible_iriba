@@ -1,0 +1,15 @@
+---
+- name: deploy mezzanine on one host
+  hosts: webservers
+  vars_files:
+    - ../environments/dev/secrets.yml
+  roles:
+    - role: database
+      database_name: "{{ mezzanine_proj_name }}"
+      database_user: "{{ mezzanine_proj_name }}"
+      
+    - role: mezzanine
+      live_hostname: game-study.tk
+      domains:
+        - game-study.tk
+        - www.game-study.tk

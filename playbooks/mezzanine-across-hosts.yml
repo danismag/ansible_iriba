@@ -1,0 +1,21 @@
+---
+- name: deploy postgres
+  hosts: db
+  vars_files:
+    - environment/dev/secrets.yml
+  roles:
+    - role: database
+      database_name: "{{ mezzanine_proj_name }}"
+      database_user: "{{ mezzanine_proj_name }}"
+
+- name: deploy mezzanine
+  hosts: web
+  vars_files:
+    - secrets.yml
+  roles:
+    - role: mezzanine
+      database_host: "{{ hostvars.db.ansible_eth1.ipv4.address }}"
+      live_hostname: game-study.tk
+      domains:
+        - game-study.tk
+        - www.game-study.tk

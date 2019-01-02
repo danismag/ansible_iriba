@@ -5,7 +5,7 @@
     user: "{{ ansible_user }}"    
     proj_app: mezzanine_app
     proj_name: "{{ proj_app }}"
-    venv_home: "{{ ansible_env.HOME }}/.virtualenv"
+    venv_home: "{{ ansible_env.HOME }}/.virtualenvs"
     venv_path: "{{ venv_home }}/{{ proj_name }}"
     root_proj_path: "{{ ansible_env.HOME }}/mezzanine"
     proj_path: "{{ root_proj_path }}/{{ proj_name }}"
@@ -30,7 +30,7 @@
     gunicorn_proc_name: gunicorn_mezzanine
     num_workers: "multiprocessing.cpu_count()*2+1"
   vars_files:
-    - secrets.yml
+    - environment/dev/secrets.yml
   tasks:
     - name: install apt packages
       apt: pkg={{ item }} update_cache=yes cache_valid_time=3600
@@ -55,7 +55,7 @@
     - name: create a logs directory
       file:
         path: "{{ ansible_env.HOME }}/logs"
-        state: dorectory
+        state: directory
         
     - name: check out the repository on the host
       git: repo={{ repo_url }} dest={{ root_proj_path }} accept_hostkey=yes

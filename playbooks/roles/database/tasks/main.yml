@@ -1,0 +1,58 @@
+---
+# tasks file for roles/database
+- name: install apt packages
+  apt: 
+    pkg:
+      - libpq-dev
+      - postgresql
+      - python3-psycopg2
+    update_cache: yes 
+    cache_valid_time: 3600
+  become: True
+
+- name: copy configuration file
+  template: src=postgresql.conf.j2 dest={{ database_config_path }}/postgresql.conf
+  become: True
+  register: conf_result
+  
+- name: set attributes to configuration file
+  file: >
+    path={{ database_config_path }}/postgresql.conf
+    owner=postgres group=postgres mode=0644 state=file
+  become: True
+  register: attr_result
+  
+- name: copy client authentication configuration file
+  copy: >
+    src=pg_hba.conf dest={{ database_config_path }}/pg_hba.conf
+    owner=postgres group=postgres mode=0640
+  become: True
+  register: clconf_result
+  
+- name: create project locale
+  locale_gen: name={{ locale }}
+  become: True
+
+# Рестарт сервера БД, если произошли изменения
+- name: restart postgres
+  service: name=postgresql state=restarted
+  become: True
+  when: conf_result is changed or attr_result is changed or clconf_result is changed
+
+- name: create a database user
+  postgresql_user:
+    name: "{{ database_user }}"
+    password: "{{ db_pass }}"
+  become: True
+  become_user: postgres
+  
+- name: create the database
+  postgresql_db:
+    name: "{{ database_name }}"
+    owner: "{{ database_user }}"
+    encoding: UTF8
+    lc_ctype: "{{ locale }}"
+    lc_collate: "{{ locale }}"
+    template: template0
+  become: True
+  become_user: postgres

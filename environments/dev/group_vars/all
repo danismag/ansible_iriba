@@ -1,0 +1,7 @@
+mezzanine_proj_app: mezzanine_app
+mezzanine_proj_name: "{{ mezzanine_proj_app }}"
+locale: ru_RU.UTF-8
+timezone: Europe/Moscow
+database_port: 5432
+fstab_path: /etc/fstab
+temp_path: ../temp

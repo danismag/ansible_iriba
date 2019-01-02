@@ -1,0 +1,19 @@
+---
+# vars file for roles/mezzanine
+mezzanine_user: "{{ ansible_user }}"
+mezzanine_root_path: "{{ ansible_env.HOME }}/mezzanine"
+mezzanine_venv_home: "{{ mezzanine_root_path }}/venv"
+mezzanine_venv_path: "{{ mezzanine_venv_home }}/{{ mezzanine_proj_name }}"
+mezzanine_logs_path: "{{ mezzanine_root_path }}/logs"
+mezzanine_dump_path: "{{ ansible_env.HOME }}/dumps"
+mezzanine_root_proj_path: "{{ mezzanine_root_path }}/src"
+mezzanine_static_path: "{{ mezzanine_root_path }}/static_content"
+mezzanine_repo_url: git@github.com:danismag/iriba_center.git
+mezzanine_proj_path: "{{ mezzanine_root_proj_path }}/{{ mezzanine_proj_name }}"
+mezzanine_settings_path: "{{ mezzanine_proj_path }}/{{ mezzanine_proj_name }}"
+mezzanine_reqs_path: requirements.txt
+mezzanine_conf_path: /etc/nginx/conf
+mezzanine_python: "{{ mezzanine_venv_path }}/bin/python"
+mezzanine_manage: "{{ mezzanine_python }} {{ mezzanine_proj_path }}/manage.py"
+mezzanine_num_workers: "multiprocessing.cpu_count() * 2 + 1"
+mezzanine_gunicorn_procname: gunicorn_mezzanine

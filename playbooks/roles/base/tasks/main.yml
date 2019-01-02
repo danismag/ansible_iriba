@@ -1,0 +1,60 @@
+---
+# tasks file for playbooks/roles/base
+- name: generate locale
+  locale_gen:
+    name: "{{ locale }}"
+    state: present
+  become: True
+  
+- name: set locale
+  command: "update-locale LANG={{ locale }}"
+  become: True
+
+- name: set timezone to 'Europe/Moscow'
+  timezone:
+    name: "{{ timezone }}"
+  become: True
+  
+- name: install acl
+  apt:
+    name: 
+      - acl
+      - mc
+    state: present
+    update_cache: yes 
+    cache_valid_time: 3600
+  become: True
+
+- name: get fstab from host
+  fetch:
+    src: "{{ fstab_path }}"
+    dest: "{{ temp_path }}"
+    
+- set_fact: file_path={{ temp_path }}/{{ inventory_hostname }}{{ fstab_path }}
+    
+- name: lookup in fstab for HDD UUID
+  shell: awk '{print $1}' {{ file_path }} | grep UUID
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+  register: result
+    
+- set_fact:
+    fstab_uuid: "{{ result.stdout }}"
+  
+- name: set mount option acl to HDD
+  mount:
+    path: /
+    src: "{{ fstab_uuid }}"
+    opts: acl,errors=remount-ro
+    fstype: ext4
+    passno: 1
+    state: present
+  become: True
+  register: fstab_result
+
+# Перезагрузка только при изменении fstab
+- name: restart server
+  reboot:
+  become: True
+  when: fstab_result is changed

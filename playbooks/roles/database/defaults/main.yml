@@ -1,0 +1,7 @@
+---
+# defaults file for roles/database
+database_port: 5432
+postgres_version: 10
+database_config_path: /etc/postgresql/{{ postgres_version }}/main
+database_data_path: /var/lib/postgresql/{{ postgres_version }}/main/
+database_timezone: "{{ timezone }}"

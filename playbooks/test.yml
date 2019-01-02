@@ -1,0 +1,30 @@
+---
+- name: deploy mezzanine on one host
+  hosts: test
+  vars_files:
+    - ../environments/dev/secrets.yml
+    
+  pre_tasks:
+    - name: copy ssh pub key to server
+      copy:
+        src: ../../files/iriba01/iriba01_ansible_ssh/ssh/id_rsa.pub
+        dest: .ssh/
+        mode: 0644
+      
+    - name: copy ssh priv key to server
+      copy:
+        src: ../../files/iriba01/iriba01_ansible_ssh/ssh/id_rsa
+        dest: .ssh/
+        mode: 0600
+  
+  roles:  
+    - role: base
+  
+    - role: database
+      database_name: "{{ mezzanine_proj_name }}"
+      database_user: "{{ mezzanine_proj_name }}"
+     
+    - role: mezzanine
+      live_hostname: 84.201.136.181
+      domains:
+        - 84.201.136.181
