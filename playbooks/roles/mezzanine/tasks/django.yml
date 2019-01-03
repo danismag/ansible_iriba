@@ -1,9 +1,25 @@
 ---
 - name: create a root directory
   file: path="{{ mezzanine_root_path }}" state=directory
+
+- name: generate folder name of root project
+  shell: date +%F_%H%M%S
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+  register: result_root_folder_name
+
+- set_fact: 
+    mezzanine_real_root_proj_path: "{{ mezzanine_projects_path }}/{{ result_root_folder_name.stdout }}"
   
-- name: create a root_project directory
-  file: path="{{ mezzanine_root_proj_path }}" state=directory
+- set_fact:
+    mezzanine_real_proj_path: "{{ mezzanine_real_root_proj_path }}/{{ mezzanine_proj_name }}"
+    
+- set_fact:
+    mezzanine_real_settings_path: "{{ mezzanine_real_proj_path }}/{{ mezzanine_proj_name }}"
+  
+- name: create a real root_project directory
+  file: path="{{ mezzanine_real_root_proj_path }}" state=directory
   
 - name: create a static directory
   file: path="{{ mezzanine_static_path }}" state=directory
@@ -16,7 +32,7 @@
   
 - name: check out the repository on the host
   git: 
-    repo={{ mezzanine_repo_url }} dest={{ mezzanine_root_proj_path }} accept_hostkey=yes
+    repo={{ mezzanine_repo_url }} dest={{ mezzanine_real_root_proj_path }} accept_hostkey=yes
 
 - name: install pip
   apt: 
@@ -45,30 +61,30 @@
     virtualenv: "{{ mezzanine_venv_path }}"
     
 - name: install requirements.txt
-  pip: >
-    requirements={{ mezzanine_proj_path }}/{{ mezzanine_reqs_path }}
-    virtualenv={{ mezzanine_venv_path }}
+  pip:
+    requirements: "{{ mezzanine_real_proj_path }}/{{ mezzanine_reqs_path }}"
+    virtualenv: "{{ mezzanine_venv_path }}"
     
 - name: generate the settings file
-  template: src=local_settings.py.j2 dest={{ mezzanine_settings_path }}/local_settings.py
+  template: src=local_settings.py.j2 dest={{ mezzanine_real_settings_path }}/local_settings.py
   
 - name: apply migrations to create the database
   django_manage:
     command: migrate
-    app_path: "{{ mezzanine_proj_path }}"
+    app_path: "{{ mezzanine_real_proj_path }}"
     virtualenv: "{{ mezzanine_venv_path }}"
 
 - name: apply collect static content
   django_manage:
     command: collectstatic
-    app_path: "{{ mezzanine_proj_path }}"
+    app_path: "{{ mezzanine_real_proj_path }}"
     virtualenv: "{{ mezzanine_venv_path }}"
 
 - name: set the site id
   script: scripts/setsite.py
   environment:
     PATH: "{{ mezzanine_venv_path }}/bin"
-    PROJECT_DIR: "{{ mezzanine_proj_path }}"
+    PROJECT_DIR: "{{ mezzanine_real_proj_path }}"
     PROJECT_APP: "{{ mezzanine_proj_app }}"
     WEBSITE_DOMAIN: "{{ live_hostname }}"
     
@@ -76,28 +92,35 @@
   script: scripts/setadmin.py
   environment:
     PATH: "{{ mezzanine_venv_path }}/bin"
-    PROJECT_DIR: "{{ mezzanine_proj_path }}"
+    PROJECT_DIR: "{{ mezzanine_real_proj_path }}"
     PROJECT_APP: "{{ mezzanine_proj_app }}"
     ADMIN_PASSWORD: "{{ admin_pass }}"
     
 - name: set the gunicorn config file
-  template: src=gunicorn.conf.py.j2 dest={{ mezzanine_proj_path }}/gunicorn.conf.py
+  template: src=gunicorn.conf.py.j2 dest={{ mezzanine_real_proj_path }}/gunicorn.conf.py
   
 - name: set the supervisor config file
   template: src=supervisor.conf.j2 dest=/etc/supervisor/conf.d/mezzanine.conf
   become: True
-  notify: restart supervisor
-  
+  register: result_supervisor
+ 
 - name: ensure nginx config path exists
   file: path={{ mezzanine_conf_path }} state=directory
   become: True
   when: tls_enabled
-  
+
+- name: create symlink to project folder
+  file:
+    src: "{{ mezzanine_real_root_proj_path }}"
+    dest: "{{ mezzanine_root_proj_path }}"
+    state: link
+    
+# Рестарт Supervisor при необходимости
 - name: restart supervisor
   supervisorctl: name=gunicorn_mezzanine state=restarted
   become: True
-  tags: test
-  
+#  when: result_supervisor is changed
+
 #- name: create database dump cron job
 #  cron: 
 #    name="set task to daily database dump" 

@@ -1,9 +1,0 @@
----
-# handlers file for roles/mezzanine
-- name: restart supervisor
-  supervisorctl: name=gunicorn_mezzanine state=restarted
-  become: True
-  
-- name: restart nginx
-  service: name=nginx state=restarted
-  become: True

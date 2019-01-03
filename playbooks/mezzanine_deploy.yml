@@ -1,5 +1,5 @@
 ---
-- name: deploy mezzanine on one host
+- name: deploy mezzanine to one host
   hosts: webservers
   vars_files:
     - ../environments/dev/secrets.yml

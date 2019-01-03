@@ -1,21 +1,21 @@
 ---
 - name: set the nginx config file
   template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/mezzanine.conf
-  notify: restart nginx
   become: True
+  register: result_nginx_conf
   
 - name: enable the nginx config file
   file:
     src: /etc/nginx/sites-available/mezzanine.conf
     dest: /etc/nginx/sites-enabled/mezzanine.conf
     state: link
-  notify: restart nginx
   become: True
+  register: result_nginx_conf_link
   
 - name: remove the default nginx config file
   file: path=/etc/nginx/sites-enabled/default state=absent
-  notify: restart nginx
   become: True
+  register: result_nginx_remove_default
   
 - name: create ssl certificates
   command: >
@@ -25,4 +25,10 @@
     creates={{ mezzanine_conf_path }}/{{ mezzanine_proj_name }}.crt
   become: True
   when: tls_enabled
-  notify: restart nginx
+  register: result_nginx_ssl
+
+# Рестарт Nginx, если произошли изменения
+- name: restart nginx
+  service: name=nginx state=restarted
+  become: True
+#  when: result_nginx_conf is changed or result_nginx_conf_link is changed or result_nginx_remove_default is changed or result_nginx_ssl is changed

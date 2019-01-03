@@ -7,6 +7,7 @@ mezzanine_venv_path: "{{ mezzanine_venv_home }}/{{ mezzanine_proj_name }}"
 mezzanine_logs_path: "{{ mezzanine_root_path }}/logs"
 mezzanine_dump_path: "{{ ansible_env.HOME }}/dumps"
 mezzanine_root_proj_path: "{{ mezzanine_root_path }}/src"
+mezzanine_projects_path: "{{ mezzanine_root_path }}/projects"
 mezzanine_static_path: "{{ mezzanine_root_path }}/static_content"
 mezzanine_repo_url: git@github.com:danismag/iriba_center.git
 mezzanine_proj_path: "{{ mezzanine_root_proj_path }}/{{ mezzanine_proj_name }}"
