@@ -3,6 +3,6 @@ import multiprocessing
 
 bind = "unix:{{ mezzanine_proj_path }}/gunicorn.sock"
 workers = {{ mezzanine_num_workers }}
-errorlog = "/home/{{ mezzanine_user }}/logs/{{ mezzanine_proj_name }}_error.log"
+errorlog = "{{ mezzanine_logs_path }}/{{ mezzanine_proj_name }}_error.log"
 loglevel = "error"
-proc_name = "{{ mezzanine_gunicorn_procname }}"
+proc_name = "{{ mezzanine_proj_name }}"

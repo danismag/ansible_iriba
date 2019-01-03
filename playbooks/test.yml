@@ -1,6 +1,6 @@
 ---
 - name: deploy mezzanine on one host
-  hosts: test
+  hosts: webservers
   vars_files:
     - ../environments/dev/secrets.yml
     
@@ -25,6 +25,5 @@
       database_user: "{{ mezzanine_proj_name }}"
      
     - role: mezzanine
-      live_hostname: 84.201.136.181
-      domains:
-        - 84.201.136.181
+      live_hostname: "{{ web_hostname }}"
+      domains: "{{ web_domains }}"
