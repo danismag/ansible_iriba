@@ -56,3 +56,34 @@
     template: template0
   become: True
   become_user: postgres
+
+- name: create a dump directory
+  file: 
+    path: "{{ database_dump_path }}" 
+    state: directory
+    owner: postgres
+  become: True
+
+- name: generate dump name
+  shell: date +%F_%H%M%S
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+  register: dump_name
+
+# Бэкап БД
+- name: create database dump
+  postgresql_db:
+    name: "{{ database_name }}"
+    state: dump
+    target: "{{ database_dump_path }}/{{ dump_name.stdout }}"
+  become: True
+  become_user: postgres
+
+- name: create database dump cron job
+  cron: 
+    name: "set task to daily database dump"
+    user: postgres
+    special_time: daily
+    job: pg_dump {{ database_name }} > {{ database_dump_path }}/`date +%F_%H%M%S`
+  become: True

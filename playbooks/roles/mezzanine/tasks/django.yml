@@ -26,10 +26,7 @@
   
 - name: create a logs directory
   file: path="{{ mezzanine_logs_path }}" state=directory
-  
-- name: create a dump directory
-  file: path="{{ mezzanine_dump_path }}" state=directory  
-  
+
 - name: check out the repository on the host
   git: 
     repo={{ mezzanine_repo_url }} dest={{ mezzanine_real_root_proj_path }} accept_hostkey=yes
@@ -120,9 +117,3 @@
   supervisorctl: name=gunicorn_mezzanine state=restarted
   become: True
 #  when: result_supervisor is changed
-
-#- name: create database dump cron job
-#  cron: 
-#    name="set task to daily database dump" 
-#    special_time="daily"
-# job="su - postgres && pg_dump {{ database_name }} > {{mezzanine_dump_path}}/`date +%F_%H%M%S`"
