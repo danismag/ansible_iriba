@@ -5,7 +5,9 @@ timezone: Europe/Moscow
 database_port: 5432
 fstab_path: /etc/fstab
 temp_path: ../temp
-web_hostname: game-study.tk
+web_hostname: game-study.ru
 web_domains:
+  - game-study.ru
   - game-study.tk
+  - www.game-study.ru
   - www.game-study.tk

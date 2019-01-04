@@ -3,8 +3,12 @@ upstream {{ mezzanine_proj_name }} {
 }
 
 server {
+    listen 80 default_server;
+    server_name _;
+    return 301 https://$host$request_uri;
+}
 
-    listen 80;
+server {
 
     {% if tls_enabled %}
     listen 443 ssl;
@@ -12,7 +16,6 @@ server {
     server_name {{ domains|join(", ") }};
     client_max_body_size 10M;
     keepalive_timeout    15;
-
     {% if tls_enabled %}
     ssl_certificate      conf/{{ mezzanine_proj_name }}.crt;
     ssl_certificate_key  conf/{{ mezzanine_proj_name }}.key;

@@ -3,6 +3,7 @@
   template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/mezzanine.conf
   become: True
   register: result_nginx_conf
+  tags: test
   
 - name: enable the nginx config file
   file:
@@ -11,11 +12,13 @@
     state: link
   become: True
   register: result_nginx_conf_link
+  tags: test
   
 - name: remove the default nginx config file
   file: path=/etc/nginx/sites-enabled/default state=absent
   become: True
   register: result_nginx_remove_default
+  tags: test
   
 - name: create ssl certificates
   command: >
@@ -31,4 +34,5 @@
 - name: restart nginx
   service: name=nginx state=restarted
   become: True
+  tags: test
 #  when: result_nginx_conf is changed or result_nginx_conf_link is changed or result_nginx_remove_default is changed or result_nginx_ssl is changed
