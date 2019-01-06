@@ -1,9 +1,46 @@
 ---
+- name: add certbot repository
+  apt_repository:
+    repo: ppa:certbot/certbot
+    state: present
+  become: True
+  when: tls_enabled
+  
+- name: install certbot
+  apt:
+    name:
+      - software-properties-common
+      - python-certbot-nginx
+    update_cache: yes 
+    cache_valid_time: 3600
+  become: True
+  when: tls_enabled
+  register: result_certbot
+
+# Нужен флаг --staging для отладки
+# После отладки нужно отозвать тестовый сертификат
+# certbot revoke --staging --cert-name game-study.ru
+- name: create ssl certificates
+  command: >
+    certbot --nginx --agree-tos -m {{ web_email }} --non-interactive --no-eff-email -d {{ domains|join(",") }}
+  become: True
+  when: tls_enabled and result_certbot is changed
+  tags: ssl
+  
+- name: set cron job to renew certificate
+  cron:
+    name: weekly renew tls certificate
+    job: "certbot renew --post-hook 'nginx -s reload' &> {{ mezzanine_logs_path }}/certbot_renew.log"
+    hour: "0"
+    minute: "0"
+    weekday: "0"
+  become: True
+  when: tls_enabled
+
 - name: set the nginx config file
   template: src=nginx.conf.j2 dest=/etc/nginx/sites-available/mezzanine.conf
   become: True
   register: result_nginx_conf
-  tags: test
   
 - name: enable the nginx config file
   file:
@@ -12,27 +49,13 @@
     state: link
   become: True
   register: result_nginx_conf_link
-  tags: test
   
 - name: remove the default nginx config file
   file: path=/etc/nginx/sites-enabled/default state=absent
   become: True
   register: result_nginx_remove_default
-  tags: test
-  
-- name: create ssl certificates
-  command: >
-    openssl req -new -x509 -nodes -out {{ mezzanine_proj_name }}.crt
-    -keyout {{ mezzanine_proj_name }}.key -subj '/CN={{ domains[0] }}' -days 3650
-    chdir={{ mezzanine_conf_path }}
-    creates={{ mezzanine_conf_path }}/{{ mezzanine_proj_name }}.crt
-  become: True
-  when: tls_enabled
-  register: result_nginx_ssl
 
 # Рестарт Nginx, если произошли изменения
 - name: restart nginx
   service: name=nginx state=restarted
   become: True
-  tags: test
-#  when: result_nginx_conf is changed or result_nginx_conf_link is changed or result_nginx_remove_default is changed or result_nginx_ssl is changed

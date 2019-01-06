@@ -84,6 +84,8 @@
   cron: 
     name: "set task to daily database dump"
     user: postgres
-    special_time: daily
+    weekday: "0"
+    minute: "10"
+    hour: "0"
     job: pg_dump {{ database_name }} > {{ database_dump_path }}/`date +%F_%H%M%S`
   become: True

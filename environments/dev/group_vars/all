@@ -11,3 +11,7 @@ web_domains:
   - game-study.tk
   - www.game-study.ru
   - www.game-study.tk
+web_email: admin@game-study.ru
+nginx_cert: "/etc/letsencrypt/live/{{ web_hostname }}/fullchain.pem"
+nginx_key: "/etc/letsencrypt/live/{{ web_hostname }}/privkey.pem"
+nginx_dhparam: /etc/letsencrypt/ssl-dhparams.pem
