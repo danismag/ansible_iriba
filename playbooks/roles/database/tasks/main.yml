@@ -115,12 +115,21 @@
     executable: /bin/bash
   delegate_to: localhost
 
-- name: create database dump cron job
+- name: set cron job create database dump
   cron: 
-    name: "set task to daily database dump"
+    name: "set task to weekly database dump"
     user: postgres
     weekday: "0"
     minute: "10"
     hour: "0"
     job: pg_dump {{ database_name }} > {{ database_dump_path }}/`date +%F_%H%M%S`
+  become: True
+
+# Джоб на очистку старых дампов БД (оставляет 10)
+- name: set cron job to delete old database dumps
+  cron: 
+    name: "daily task to delete old database dumps"
+    minute: "15"
+    hour: "0"
+    job: ls -t1 {{ database_dump_path }} | tail -n+11 | rm -f
   become: True
