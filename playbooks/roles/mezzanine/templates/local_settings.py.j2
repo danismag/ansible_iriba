@@ -4,7 +4,9 @@ SECRET_KEY = "{{ secret_key }}"
 NEVERCACHE_KEY = "{{ nevercache_key }}"
 ALLOWED_HOSTS = [{% for domain in domains %}"{{ domain }}",{% endfor %}]
 STATIC_ROOT = os.path.abspath(os.path.join("{{ mezzanine_static_path }}", "static"))
-MEDIA_ROOT = os.path.abspath(os.path.join("{{ mezzanine_static_path }}", "media"))
+MEDIA_ROOT = os.path.abspath(os.path.join("{{ mezzanine_media_path }}", "media"))
+STATIC_URL = "/static/"
+MEDIA_URL = "/media/"
 
 DATABASES = {
     "default": {

@@ -23,6 +23,9 @@
   
 - name: create a static directory
   file: path="{{ mezzanine_static_path }}" state=directory
+
+- name: create a media directory
+  file: path="{{ mezzanine_media_path }}" state=directory  
   
 - name: create a logs directory
   file: path="{{ mezzanine_logs_path }}" state=directory

@@ -41,6 +41,12 @@ server {
         access_log      off;
         log_not_found   off;
     }
+    
+    location /media/ {
+        root            {{ mezzanine_media_path }};
+        access_log      off;
+        log_not_found   off;
+    }
 
     location /robots.txt {
         root            {{ mezzanine_static_path }}/static;

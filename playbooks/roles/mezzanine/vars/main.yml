@@ -8,6 +8,7 @@ mezzanine_logs_path: "{{ mezzanine_root_path }}/logs"
 mezzanine_root_proj_path: "{{ mezzanine_root_path }}/src"
 mezzanine_projects_path: "{{ mezzanine_root_path }}/projects"
 mezzanine_static_path: "{{ mezzanine_root_path }}/static_content"
+mezzanine_media_path: "{{ mezzanine_root_path }}/media_content"
 mezzanine_repo_url: git@github.com:danismag/iriba_center.git
 mezzanine_proj_path: "{{ mezzanine_root_proj_path }}/{{ mezzanine_proj_name }}"
 mezzanine_settings_path: "{{ mezzanine_proj_path }}/{{ mezzanine_proj_name }}"
