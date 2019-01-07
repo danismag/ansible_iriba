@@ -2,3 +2,4 @@
 ansible_run.sh
 temp/
 *.retry
+dump/
