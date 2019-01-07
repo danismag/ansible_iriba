@@ -5,4 +5,5 @@ postgres_version: 10
 database_config_path: /etc/postgresql/{{ postgres_version }}/main
 database_data_path: /var/lib/postgresql/{{ postgres_version }}/main/
 database_timezone: "{{ timezone }}"
-database_dump_path: "{{ ansible_env.HOME }}/dumps"
+database_dump_folder: dumps
+database_dump_path: "{{ ansible_env.HOME }}/{{ database_dump_folder }}"

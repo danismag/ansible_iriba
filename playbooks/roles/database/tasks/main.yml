@@ -64,6 +64,34 @@
     owner: postgres
   become: True
 
+# Поиск последнего актуального дампа на упр. машине
+- name: seacrh for last modified dump
+  shell: ls -t {{ dump_path }}/{{ database_dump_folder }}| head -n1
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+  register: last_dump
+  when: redeploy
+
+# Копирование последнего актуального дампа с упр. машины
+- name: copy last actual db dump from master
+  copy:
+    src: "{{ dump_path }}/{{ database_dump_folder }}/{{ last_dump.stdout }}"
+    dest: "{{ database_dump_path }}/redeploy_dump"
+    group: postgres
+  become: True
+  when: redeploy
+
+# Заливка последнего бэкапа с управляющей машины
+- name: restore database from dump
+  postgresql_db:
+    name: "{{ database_name }}"
+    state: restore
+    target: "{{ database_dump_path }}/redeploy_dump"
+  become: True
+  become_user: postgres
+  when: redeploy
+
 - name: generate dump name
   shell: date +%F_%H%M%S
   args:
