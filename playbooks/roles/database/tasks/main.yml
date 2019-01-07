@@ -80,6 +80,13 @@
   become: True
   become_user: postgres
 
+# Скопировать актуальные дампы на управляющую машину
+- name: get database dumps from host
+  shell: scp -pr {{ inventory_hostname }}:{{ database_dump_path }} {{ dump_path }}
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+
 - name: create database dump cron job
   cron: 
     name: "set task to daily database dump"

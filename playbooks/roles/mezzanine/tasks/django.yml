@@ -34,6 +34,21 @@
   git: 
     repo={{ mezzanine_repo_url }} dest={{ mezzanine_real_root_proj_path }} accept_hostkey=yes
 
+# Скопировать медиа-файлы на управляющую машину
+- name: get database dumps from host
+  shell: scp -pr {{ inventory_hostname }}:{{ mezzanine_media_path }} {{ dump_path }}
+  args:
+    executable: /bin/bash
+  delegate_to: localhost
+  when: not redeploy
+  
+# Скопировать медиа-файлы на сервер при повторном развертывании на другом сервере
+- name: copy media from dump when redeploy to another server
+  copy:
+    src: "{{ dump_path }}/{{ mezzanine_media_folder }}"
+    dest: "{{ mezzanine_root_path }}"
+  when: redeploy
+
 - name: install pip
   apt: 
     name: python3-pip
@@ -66,7 +81,7 @@
     virtualenv: "{{ mezzanine_venv_path }}"
     
 - name: generate the settings file
-  template: src=local_settings.py.j2 dest={{ mezzanine_real_settings_path }}/local_settings.py
+  template: src=local_settings.py.j2 dest={{ mezzanine_real_settings_path }}/local_settings.py  
   
 - name: apply migrations to create the database
   django_manage:
